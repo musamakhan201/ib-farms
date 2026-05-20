@@ -2,6 +2,7 @@ package com.ibfarms.config;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
+import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.util.StringUtils;
@@ -10,35 +11,57 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Maps Render's {@code DATABASE_URL} to Spring datasource properties when JDBC URL is not set.
+ * Maps {@code DATABASE_URL} / {@code SPRING_DATASOURCE_*} env vars to Spring datasource properties.
+ * Runs after config files load so empty property placeholders do not block Neon/Render URLs.
  */
-public class RenderDatabaseEnvironmentPostProcessor implements EnvironmentPostProcessor {
+public class RenderDatabaseEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
 
     private static final String PROPERTY_SOURCE = "renderDatabase";
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        if (StringUtils.hasText(environment.getProperty("SPRING_DATASOURCE_URL"))) {
-            return;
+        Map<String, Object> properties = new LinkedHashMap<>();
+
+        String jdbcUrl = firstText(
+                environment.getProperty("SPRING_DATASOURCE_URL"),
+                environment.getProperty("spring.datasource.url"));
+
+        if (!StringUtils.hasText(jdbcUrl)) {
+            String databaseUrl = environment.getProperty("DATABASE_URL");
+            if (StringUtils.hasText(databaseUrl)) {
+                properties.putAll(DatabaseUrlConverter.toSpringDatasourceProperties(databaseUrl));
+            }
+        } else if (jdbcUrl.startsWith("jdbc:")) {
+            properties.put("spring.datasource.url", jdbcUrl);
+        } else {
+            properties.putAll(DatabaseUrlConverter.toSpringDatasourceProperties(jdbcUrl));
         }
 
-        String databaseUrl = environment.getProperty("DATABASE_URL");
-        if (!StringUtils.hasText(databaseUrl)) {
-            return;
-        }
+        putIfAbsent(properties, "spring.datasource.username", environment.getProperty("SPRING_DATASOURCE_USERNAME"));
+        putIfAbsent(properties, "spring.datasource.password", environment.getProperty("SPRING_DATASOURCE_PASSWORD"));
 
-        Map<String, Object> converted = new LinkedHashMap<>(DatabaseUrlConverter.toSpringDatasourceProperties(databaseUrl));
-        if (converted.isEmpty()) {
-            return;
+        if (!properties.isEmpty()) {
+            environment.getPropertySources().addFirst(new MapPropertySource(PROPERTY_SOURCE, properties));
         }
+    }
 
-        if (StringUtils.hasText(environment.getProperty("SPRING_DATASOURCE_USERNAME"))) {
-            converted.remove("spring.datasource.username");
-        }
-        if (StringUtils.hasText(environment.getProperty("SPRING_DATASOURCE_PASSWORD"))) {
-            converted.remove("spring.datasource.password");
-        }
+    @Override
+    public int getOrder() {
+        return Ordered.LOWEST_PRECEDENCE;
+    }
 
-        environment.getPropertySources().addFirst(new MapPropertySource(PROPERTY_SOURCE, converted));
+    private static void putIfAbsent(Map<String, Object> target, String key, String value) {
+        if (!target.containsKey(key) && StringUtils.hasText(value)) {
+            target.put(key, value);
+        }
+    }
+
+    private static String firstText(String... candidates) {
+        for (String candidate : candidates) {
+            if (StringUtils.hasText(candidate)) {
+                return candidate.trim();
+            }
+        }
+        return null;
     }
 }
