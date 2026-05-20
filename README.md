@@ -57,30 +57,18 @@ mvn spring-boot:run
 
 Open [http://localhost:10000](http://localhost:10000) and register a new account.
 
-### Registration approval
+### User registration
 
-New accounts are **disabled until you approve them**:
+New accounts are created **disabled** until an administrator enables them in the database.
 
-1. Someone registers on the site.
-2. You receive an email at **musamakhan201@gmail.com** with an **Approve** link.
-3. Open that link to enable the account; the user can then sign in.
+1. User registers and sees: *Registration successful. Ask your IT administrator to enable your account.*
+2. Enable the user in Neon/PostgreSQL:
 
-Configure SMTP in `application-local.yml` (see `.env.example`). Without mail settings, approval links are logged to the console instead.
-
-```yaml
-spring:
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: musamakhan201@gmail.com
-    password: your_gmail_app_password
-
-ibfarms:
-  admin-email: musamakhan201@gmail.com
-  base-url: http://localhost:10000   # Render sets RENDER_EXTERNAL_URL automatically
+```sql
+UPDATE users SET enabled = true WHERE username = 'their_username';
 ```
 
-For Gmail, create an [App Password](https://myaccount.google.com/apppasswords) (2-Step Verification required).
+3. The user can sign in.
 
 ## Project structure
 
@@ -139,10 +127,6 @@ This repo includes a [Render Blueprint](https://render.com/docs/blueprint-spec) 
 
 | Variable | Example |
 |----------|---------|
-| `IBFARMS_BASE_URL` | `https://ib-farms.onrender.com` (your service URL) |
-| `MAIL_HOST` | `smtp.gmail.com` |
-| `MAIL_USERNAME` | your Gmail address |
-| `MAIL_PASSWORD` | Gmail [App Password](https://myaccount.google.com/apppasswords) |
 | `CLOUDINARY_CLOUD_NAME` | from Cloudinary dashboard |
 | `CLOUDINARY_API_KEY` | from Cloudinary dashboard |
 | `CLOUDINARY_API_SECRET` | from Cloudinary dashboard |

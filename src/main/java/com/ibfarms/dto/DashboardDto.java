@@ -18,9 +18,11 @@ public class DashboardDto {
     private BigDecimal monthlySales;
     private BigDecimal monthlyProfit;
     private List<String> expenseChartLabels;
-    private List<BigDecimal> expenseChartData;
+    private List<Double> expenseChartAnimalData;
+    private List<Double> expenseChartOtherData;
+    private List<Double> expenseChartSalaryData;
     private List<String> salesChartLabels;
-    private List<BigDecimal> salesChartData;
+    private List<Double> salesChartData;
     private List<PregnancyAlertDto> upcomingDeliveries;
 
     @Data

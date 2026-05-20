@@ -2,28 +2,54 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{})}">
 <body>
 <section id="content">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <a th:href="@{/employees/new}" class="btn btn-primary">Add Employee</a>
+    <th:block th:replace="~{fragments/toolbar :: toolbar('Employees', @{/employees/new}, 'Add Employee')}"/>
+
+    <div class="ib-mobile-list d-md-none" th:if="${!employees.isEmpty()}">
+        <article class="ib-mobile-card" th:each="e : ${employees}">
+            <h2 class="ib-mobile-card-title" th:text="${e.fullName}">Name</h2>
+            <div class="ib-mobile-card-row">
+                <span class="ib-mobile-card-label">Role</span>
+                <span th:text="${e.role != null ? e.role : '—'}"></span>
+            </div>
+            <div class="ib-mobile-card-row">
+                <span class="ib-mobile-card-label">Salary</span>
+                <span th:text="${e.monthlySalary != null ? #numbers.formatDecimal(e.monthlySalary, 1, 2) : '—'}"></span>
+            </div>
+            <div class="ib-mobile-card-row">
+                <span class="ib-mobile-card-label">Status</span>
+                <span class="badge" th:classappend="${e.active} ? 'bg-success' : 'bg-secondary'" th:text="${e.active} ? 'Active' : 'Inactive'"></span>
+            </div>
+            <div class="ib-action-stack mt-2">
+                <a th:href="@{/employees/{id}(id=${e.id})}" class="btn btn-sm btn-outline-primary">View</a>
+                <a th:href="@{/employees/{id}/edit(id=${e.id})}" class="btn btn-sm btn-outline-secondary">Edit</a>
+            </div>
+        </article>
     </div>
-    <div class="card table-responsive">
-        <table class="table table-hover mb-0">
-            <thead class="table-light">
-            <tr><th>Name</th><th>Role</th><th>Monthly Salary</th><th>Status</th><th class="text-end">Actions</th></tr>
-            </thead>
-            <tbody>
-            <tr th:each="e : ${employees}">
-                <td th:text="${e.fullName}"></td>
-                <td th:text="${e.role != null ? e.role : '—'}"></td>
-                <td th:text="${e.monthlySalary != null ? #numbers.formatDecimal(e.monthlySalary, 1, 2) : '—'}"></td>
-                <td><span class="badge" th:classappend="${e.active} ? 'bg-success' : 'bg-secondary'" th:text="${e.active} ? 'Active' : 'Inactive'"></span></td>
-                <td class="text-end text-nowrap">
-                    <a th:href="@{/employees/{id}(id=${e.id})}" class="btn btn-sm btn-outline-primary">View</a>
-                    <a th:href="@{/employees/{id}/edit(id=${e.id})}" class="btn btn-sm btn-outline-secondary">Edit</a>
-                </td>
-            </tr>
-            <tr th:if="${employees.isEmpty()}"><td colspan="5" class="text-center text-muted py-4">No employees yet.</td></tr>
-            </tbody>
-        </table>
+    <div class="card d-md-none" th:if="${employees.isEmpty()}">
+        <div class="card-body text-center text-muted py-4">No employees yet.</div>
+    </div>
+
+    <div class="card d-none d-md-block">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                <tr><th>Name</th><th>Role</th><th>Monthly Salary</th><th>Status</th><th class="text-end">Actions</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="e : ${employees}">
+                    <td th:text="${e.fullName}"></td>
+                    <td th:text="${e.role != null ? e.role : '—'}"></td>
+                    <td th:text="${e.monthlySalary != null ? #numbers.formatDecimal(e.monthlySalary, 1, 2) : '—'}"></td>
+                    <td><span class="badge" th:classappend="${e.active} ? 'bg-success' : 'bg-secondary'" th:text="${e.active} ? 'Active' : 'Inactive'"></span></td>
+                    <td class="text-end">
+                        <a th:href="@{/employees/{id}(id=${e.id})}" class="btn btn-sm btn-outline-primary">View</a>
+                        <a th:href="@{/employees/{id}/edit(id=${e.id})}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    </td>
+                </tr>
+                <tr th:if="${employees.isEmpty()}"><td colspan="5" class="text-center text-muted py-4">No employees yet.</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </section>
 </body>

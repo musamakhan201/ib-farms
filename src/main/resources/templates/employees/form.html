@@ -13,19 +13,19 @@
                 <div class="invalid-feedback" th:errors="*{fullName}"></div>
             </div>
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <label class="form-label">Role</label>
                     <input type="text" th:field="*{role}" class="form-control" placeholder="e.g. Farm hand"/>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <label class="form-label">Phone</label>
                     <input type="text" th:field="*{phone}" class="form-control"/>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <label class="form-label">Monthly Salary</label>
                     <input type="number" step="0.01" th:field="*{monthlySalary}" class="form-control"/>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <label class="form-label">Hire Date</label>
                     <input type="date" th:field="*{hireDate}" class="form-control"/>
                 </div>

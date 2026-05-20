@@ -2,9 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{::#scripts})}">
 <body>
 <section id="content">
-<div class="card p-3 mb-4">
+    <h1 class="ib-page-title mb-4">Reports</h1>
+
+    <div class="card p-3 mb-4">
         <form method="get" th:action="@{/reports}" class="row g-2 align-items-end">
-            <div class="col-md-3">
+            <div class="col-12 col-md-3">
                 <label class="form-label">Report Type</label>
                 <select name="type" class="form-select">
                     <option value="expenses" th:selected="${type == 'expenses'}">Expenses</option>
@@ -14,15 +16,15 @@
                     <option value="growth" th:selected="${type == 'growth'}">Growth</option>
                 </select>
             </div>
-            <div class="col-md-3" th:unless="${type == 'pregnancy'}">
+            <div class="col-12 col-sm-6 col-md-3" th:unless="${type == 'pregnancy'}">
                 <label class="form-label">From</label>
                 <input type="date" name="from" class="form-control" th:value="${from}"/>
             </div>
-            <div class="col-md-3" th:unless="${type == 'pregnancy'}">
+            <div class="col-12 col-sm-6 col-md-3" th:unless="${type == 'pregnancy'}">
                 <label class="form-label">To</label>
                 <input type="date" name="to" class="form-control" th:value="${to}"/>
             </div>
-            <div class="col-md-3">
+            <div class="col-12 col-md-3">
                 <button type="submit" class="btn btn-primary w-100">Generate</button>
             </div>
         </form>
@@ -31,13 +33,13 @@
     <!-- Expenses -->
     <div th:if="${report.reportType == 'expenses'}">
         <div class="row g-3 mb-3">
-            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Total (All)</div>
+            <div class="col-12 col-md-3"><div class="card p-3"><div class="text-muted small">Total (All)</div>
                 <div class="h5" th:text="${#numbers.formatDecimal(report.totalExpenses, 1, 2)}"></div></div></div>
-            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Animal Expenses</div>
+            <div class="col-12 col-md-3"><div class="card p-3"><div class="text-muted small">Animal Expenses</div>
                 <div class="h5" th:text="${#numbers.formatDecimal(report.totalAnimalExpenses, 1, 2)}"></div></div></div>
-            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Other Expenses</div>
+            <div class="col-12 col-md-3"><div class="card p-3"><div class="text-muted small">Other Expenses</div>
                 <div class="h5" th:text="${#numbers.formatDecimal(report.totalOtherExpenses, 1, 2)}"></div></div></div>
-            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Salaries Paid</div>
+            <div class="col-12 col-md-3"><div class="card p-3"><div class="text-muted small">Salaries Paid</div>
                 <div class="h5" th:text="${#numbers.formatDecimal(report.totalSalaryPayments, 1, 2)}"></div></div></div>
         </div>
         <div class="row g-4">
@@ -91,13 +93,13 @@
     <!-- Profit -->
     <div th:if="${report.reportType == 'profit'}">
         <div class="row g-3 mb-4">
-            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Animal Sale Profit</div>
+            <div class="col-12 col-md-3"><div class="card p-3"><div class="text-muted small">Animal Sale Profit</div>
                 <div class="h5" th:text="${#numbers.formatDecimal(report.grossAnimalProfit, 1, 2)}"></div></div></div>
-            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Other Expenses</div>
+            <div class="col-12 col-md-3"><div class="card p-3"><div class="text-muted small">Other Expenses</div>
                 <div class="h5 text-danger" th:text="${#numbers.formatDecimal(report.totalOtherExpenses.negate(), 1, 2)}"></div></div></div>
-            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Salaries Paid</div>
+            <div class="col-12 col-md-3"><div class="card p-3"><div class="text-muted small">Salaries Paid</div>
                 <div class="h5 text-danger" th:text="${#numbers.formatDecimal(report.totalSalaryPayments.negate(), 1, 2)}"></div></div></div>
-            <div class="col-md-3"><div class="card p-3 border-primary"><div class="text-muted small">Net Farm Profit / Loss</div>
+            <div class="col-12 col-md-3"><div class="card p-3 border-primary"><div class="text-muted small">Net Farm Profit / Loss</div>
                 <div class="h4" th:classappend="${report.netFarmProfit.signum() < 0} ? 'text-danger' : 'text-success'"
                      th:text="${#numbers.formatDecimal(report.netFarmProfit, 1, 2)}"></div></div></div>
         </div>
@@ -195,13 +197,21 @@
 </section>
 <th:block id="scripts" th:fragment="scripts" th:if="${report.reportType == 'expenses' and report.chartLabels != null and !report.chartLabels.isEmpty()}">
     <script th:inline="javascript">
-        new Chart(document.getElementById('reportChart'), {
-            type: 'doughnut',
-            data: {
-                labels: /*[[${report.chartLabels}]]*/ [],
-                datasets: [{data: /*[[${report.chartData}]]*/ [], backgroundColor: ['#2d6a4f','#40916c','#52b788','#74c69d','#95d5b2']}]
-            },
-            options: {responsive: true}
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof Chart === 'undefined') {
+                return;
+            }
+            new Chart(document.getElementById('reportChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: /*[(${@json.write(report.chartLabels)})]*/ [],
+                    datasets: [{
+                        data: /*[(${@json.write(report.chartData)})]*/ [],
+                        backgroundColor: ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2']
+                    }]
+                },
+                options: {responsive: true}
+            });
         });
     </script>
 </th:block>

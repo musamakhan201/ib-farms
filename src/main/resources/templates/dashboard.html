@@ -2,9 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{::#scripts})}">
 <body>
 <section id="content">
-    <div class="d-flex flex-wrap justify-content-end align-items-center mb-4 gap-2">
-        <a th:href="@{/animals/new}" class="btn btn-primary">Add Animal</a>
-    </div>
+    <th:block th:replace="~{fragments/toolbar :: toolbar('Dashboard', @{/animals/new}, 'Add Animal')}"/>
 
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
@@ -38,6 +36,7 @@
             <div class="card p-3">
                 <div class="text-muted small">Monthly Expenses</div>
                 <div class="h4" th:text="${#numbers.formatDecimal(dashboard.monthlyExpenses, 1, 2)}">0</div>
+                <div class="text-muted small mt-1">Animal + other + salaries</div>
             </div>
         </div>
         <div class="col-md-4">
@@ -57,14 +56,17 @@
     <div class="row g-4 mb-4">
         <div class="col-lg-6">
             <div class="card p-3">
-                <h5 class="card-title">Daily Expenses (This Month)</h5>
-                <canvas id="expenseChart" height="200"></canvas>
+                <h5 class="card-title">Daily Farm Expenses (This Month)</h5>
+                <p class="text-muted small mb-2">Animal expenses, other expenses, and salaries</p>
+                <div class="ib-chart-wrap"><canvas id="expenseChart"></canvas></div>
+                <p id="expenseChartEmpty" class="text-muted small mb-0 mt-2 d-none">No expenses recorded this month yet.</p>
             </div>
         </div>
         <div class="col-lg-6">
             <div class="card p-3">
                 <h5 class="card-title">Daily Sales (This Month)</h5>
-                <canvas id="salesChart" height="200"></canvas>
+                <div class="ib-chart-wrap"><canvas id="salesChart"></canvas></div>
+                <p id="salesChartEmpty" class="text-muted small mb-0 mt-2 d-none">No sales recorded this month yet.</p>
             </div>
         </div>
     </div>
@@ -91,31 +93,74 @@
 
 <th:block id="scripts" th:fragment="scripts">
     <script th:inline="javascript">
-        const expenseLabels = /*[[${dashboard.expenseChartLabels}]]*/ [];
-        const expenseData = /*[[${dashboard.expenseChartData}]]*/ [];
-        const salesLabels = /*[[${dashboard.salesChartLabels}]]*/ [];
-        const salesData = /*[[${dashboard.salesChartData}]]*/ [];
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js did not load');
+                return;
+            }
 
-        if (expenseLabels.length) {
+            const expenseLabels = /*[(${@json.write(dashboard.expenseChartLabels)})]*/ [];
+            const expenseAnimal = /*[(${@json.write(dashboard.expenseChartAnimalData)})]*/ [];
+            const expenseOther = /*[(${@json.write(dashboard.expenseChartOtherData)})]*/ [];
+            const expenseSalary = /*[(${@json.write(dashboard.expenseChartSalaryData)})]*/ [];
+            const salesLabels = /*[(${@json.write(dashboard.salesChartLabels)})]*/ [];
+            const salesData = /*[(${@json.write(dashboard.salesChartData)})]*/ [];
+
+            if (expenseLabels.length === 0) {
+                document.getElementById('expenseChartEmpty').classList.remove('d-none');
+            }
             new Chart(document.getElementById('expenseChart'), {
-                type: 'line',
+                type: 'bar',
                 data: {
-                    labels: expenseLabels,
-                    datasets: [{label: 'Expenses', data: expenseData, borderColor: '#2d6a4f', tension: 0.3}]
+                    labels: expenseLabels.length ? expenseLabels : ['No data'],
+                    datasets: [
+                        {
+                            label: 'Animal',
+                            data: expenseAnimal.length ? expenseAnimal : [0],
+                            backgroundColor: '#2d6a4f',
+                            stack: 'expenses'
+                        },
+                        {
+                            label: 'Other',
+                            data: expenseOther.length ? expenseOther : [0],
+                            backgroundColor: '#40916c',
+                            stack: 'expenses'
+                        },
+                        {
+                            label: 'Salaries',
+                            data: expenseSalary.length ? expenseSalary : [0],
+                            backgroundColor: '#95d5b2',
+                            stack: 'expenses'
+                        }
+                    ]
                 },
-                options: {responsive: true, plugins: {legend: {display: false}}}
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {stacked: true},
+                        y: {stacked: true, beginAtZero: true}
+                    },
+                    plugins: {legend: {position: 'bottom'}}
+                }
             });
-        }
-        if (salesLabels.length) {
+
+            if (salesLabels.length === 0) {
+                document.getElementById('salesChartEmpty').classList.remove('d-none');
+            }
             new Chart(document.getElementById('salesChart'), {
                 type: 'bar',
                 data: {
-                    labels: salesLabels,
-                    datasets: [{label: 'Sales', data: salesData, backgroundColor: '#40916c'}]
+                    labels: salesLabels.length ? salesLabels : ['No data'],
+                    datasets: [{
+                        label: 'Sales',
+                        data: salesData.length ? salesData : [0],
+                        backgroundColor: '#40916c'
+                    }]
                 },
-                options: {responsive: true, plugins: {legend: {display: false}}}
+                options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}}
             });
-        }
+        });
     </script>
 </th:block>
 </body>

@@ -37,4 +37,16 @@ public interface OtherExpenseRepository extends JpaRepository<OtherExpense, Long
             @Param("ownerId") Long ownerId,
             @Param("from") LocalDate from,
             @Param("to") LocalDate to);
+
+    @Query("""
+            SELECT o.expenseDate, SUM(o.amount) FROM OtherExpense o
+            WHERE o.owner.id = :ownerId
+              AND o.expenseDate BETWEEN :from AND :to
+            GROUP BY o.expenseDate
+            ORDER BY o.expenseDate
+            """)
+    List<Object[]> sumByDay(
+            @Param("ownerId") Long ownerId,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to);
 }

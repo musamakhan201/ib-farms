@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="toolbar(title, actionHref, actionLabel)"
+     class="ib-page-toolbar">
+    <h1 class="ib-page-title" th:text="${title}">Page</h1>
+    <div class="ib-toolbar-actions" th:if="${actionHref != null}">
+        <a th:href="${actionHref}" class="btn btn-primary" th:text="${actionLabel}">Action</a>
+    </div>
+</div>
+</body>
+</html>

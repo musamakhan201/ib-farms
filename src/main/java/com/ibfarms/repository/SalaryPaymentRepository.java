@@ -38,4 +38,16 @@ public interface SalaryPaymentRepository extends JpaRepository<SalaryPayment, Lo
             @Param("ownerId") Long ownerId,
             @Param("from") LocalDate from,
             @Param("to") LocalDate to);
+
+    @Query("""
+            SELECT s.paidDate, SUM(s.amount) FROM SalaryPayment s
+            WHERE s.employee.owner.id = :ownerId
+              AND s.paidDate BETWEEN :from AND :to
+            GROUP BY s.paidDate
+            ORDER BY s.paidDate
+            """)
+    List<Object[]> sumByDay(
+            @Param("ownerId") Long ownerId,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to);
 }

@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{})}">
 <body>
-<section id="content" class="row justify-content-center">
-    <div class="col-md-5 col-lg-4">
+<section id="content" class="row justify-content-center ib-auth-section">
+    <div class="col-12 col-sm-10 col-md-6 col-lg-5 col-xl-4">
         <div class="card p-4">
             <th:block th:replace="~{fragments/logo :: auth-header}"/>
             <div th:if="${param.error}" class="alert alert-danger">Invalid username or password.</div>
-            <div th:if="${param.pending}" class="alert alert-warning">Your account is waiting for admin approval. You can sign in after approval.</div>
+            <div th:if="${param.pending}" class="alert alert-warning">Your account is not enabled yet. Ask your IT administrator to enable your account.</div>
+            <div th:if="${param.registered}" class="alert alert-success">Registration successful. Ask your IT administrator to enable your account before you can sign in.</div>
             <div th:if="${param.logout}" class="alert alert-success">You have been logged out.</div>
             <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
             <form th:action="@{/login}" method="post">

@@ -15,8 +15,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RegistrationApprovalService approvalService;
-    private final MailService mailService;
 
     @Transactional
     public User register(RegisterDto dto) {
@@ -29,17 +27,13 @@ public class UserService {
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new DuplicateResourceException("Email already registered");
         }
-        String approvalToken = approvalService.newApprovalToken();
         User user = User.builder()
                 .username(dto.getUsername().trim())
                 .email(dto.getEmail().trim().toLowerCase())
                 .fullName(dto.getFullName().trim())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .enabled(false)
-                .approvalToken(approvalToken)
                 .build();
-        user = userRepository.save(user);
-        mailService.sendPendingApprovalToAdmin(user, approvalService.approvalUrl(approvalToken));
-        return user;
+        return userRepository.save(user);
     }
 }

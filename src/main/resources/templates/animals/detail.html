@@ -2,15 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{::#scripts})}">
 <body>
 <section id="content">
-    <div class="d-flex flex-wrap justify-content-between align-items-start mb-4 gap-2">
-        <div class="d-flex align-items-center gap-3">
+    <div class="ib-detail-header mb-4">
+        <div class="ib-detail-title">
             <img th:src="@{/images/ib-farms-logo.png}" alt="" class="ib-logo ib-logo-page" aria-hidden="true"/>
-            <div>
-                <h1 class="h3 mb-1" th:text="${animal.name}"></h1>
+            <div class="min-w-0">
+                <h1 class="h3 mb-1 text-truncate" th:text="${animal.name}"></h1>
                 <span class="text-muted" th:text="${animal.tagNumber} + ' · ' + ${animal.species}"></span>
             </div>
         </div>
-        <div class="d-flex flex-wrap gap-2" th:if="${animal.status.name() == 'ACTIVE'}">
+        <div class="ib-detail-actions" th:if="${animal.status.name() == 'ACTIVE'}">
             <a th:href="@{/animals/{id}/edit(id=${animal.id})}" class="btn btn-outline-secondary btn-sm">Edit</a>
             <a th:href="@{/animals/{id}/growth/new(id=${animal.id})}" class="btn btn-outline-primary btn-sm">Growth</a>
             <a th:href="@{/animals/{id}/expenses/new(id=${animal.id})}" class="btn btn-outline-primary btn-sm">Expense</a>
@@ -21,7 +21,7 @@
                 <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
             </form>
         </div>
-        <div class="d-flex flex-wrap gap-2" th:if="${animal.status.name() == 'SOLD'}">
+        <div class="ib-detail-actions" th:if="${animal.status.name() == 'SOLD'}">
             <a th:href="@{/animals/{id}/sale/report(id=${animal.id})}" class="btn btn-success btn-sm">Sale Report</a>
             <a th:href="@{/animals/{id}/sale/report/download(id=${animal.id})}" class="btn btn-primary btn-sm">Download PDF</a>
         </div>
@@ -60,7 +60,9 @@
 
             <div class="card p-3 mb-4">
                 <h5>Growth Records</h5>
-                <canvas id="growthChart" height="120" th:if="${!animal.growthRecords.isEmpty()}"></canvas>
+                <div class="ib-chart-wrap" th:if="${!animal.growthRecords.isEmpty()}">
+                    <canvas id="growthChart"></canvas>
+                </div>
                 <div class="table-responsive mt-3">
                     <table class="table table-sm">
                         <thead><tr><th>Date</th><th>Height</th><th>Length</th><th>Weight</th></tr></thead>
@@ -99,16 +101,24 @@
 </section>
 <th:block id="scripts" th:fragment="scripts" th:if="${!animal.growthRecords.isEmpty()}">
     <script th:inline="javascript">
-        const records = /*[[${animal.growthRecords}]]*/ [];
-        const labels = records.map(r => r.recordDate).reverse();
-        const weights = records.map(r => r.weightKg).reverse();
-        if (labels.length && weights.some(w => w != null)) {
-            new Chart(document.getElementById('growthChart'), {
-                type: 'line',
-                data: {labels, datasets: [{label: 'Weight (kg)', data: weights, borderColor: '#1b4332', tension: 0.3}]},
-                options: {responsive: true}
-            });
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof Chart === 'undefined') {
+                return;
+            }
+            const records = /*[(${@json.write(animal.growthRecords)})]*/ [];
+            const labels = records.map(r => r.recordDate).reverse();
+            const weights = records.map(r => r.weightKg != null ? Number(r.weightKg) : null).reverse();
+            if (labels.length && weights.some(w => w != null)) {
+                new Chart(document.getElementById('growthChart'), {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{label: 'Weight (kg)', data: weights, borderColor: '#1b4332', tension: 0.3}]
+                    },
+                    options: {responsive: true, maintainAspectRatio: false}
+                });
+            }
+        });
     </script>
 </th:block>
 </body>

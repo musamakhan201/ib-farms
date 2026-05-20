@@ -40,8 +40,8 @@ public class AuthController {
         try {
             userService.register(dto);
             redirect.addFlashAttribute("successMessage",
-                    "Registration received. Your account is pending admin approval — you can sign in after approval.");
-            return "redirect:/login";
+                    "Registration successful. Ask your IT administrator to enable your account before you can sign in.");
+            return "redirect:/login?registered";
         } catch (RuntimeException ex) {
             result.reject("registration", ex.getMessage());
             return "register";
