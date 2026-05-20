@@ -1,0 +1,53 @@
+# Render Blueprint — deploy from Dashboard: New → Blueprint → connect this repo
+# Docs: https://render.com/docs/blueprint-spec
+
+databases:
+  - name: ibfarms-db
+    databaseName: ibfarms
+    user: ibfarms
+    plan: free
+
+services:
+  - type: web
+    name: ib-farms
+    runtime: docker
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ibfarms-db
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: ibfarms-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: ibfarms-db
+          property: password
+      - key: JAVA_TOOL_OPTIONS
+        value: -Xmx384m -Xms256m
+      - key: THYMELEAF_CACHE
+        value: "true"
+      # Set these in the Render Dashboard after deploy (sync: false = manual)
+      - key: IBFARMS_BASE_URL
+        sync: false
+      - key: IBFARMS_ADMIN_EMAIL
+        value: musamakhan201@gmail.com
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

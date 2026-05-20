@@ -3,28 +3,19 @@ spring:
     import: optional:file:./application-local.yml
   application:
     name: ib-farms
-  datasource:
-    url: jdbc:postgresql://localhost:5432/ibfarms
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
   jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: false
     properties:
       hibernate:
         format_sql: true
         jdbc:
           time_zone: UTC
-    open-in-view: false
   servlet:
     multipart:
       enabled: true
       max-file-size: 10MB
       max-request-size: 10MB
   thymeleaf:
-    cache: false
+    cache: ${THYMELEAF_CACHE:false}
   sql:
     init:
       mode: never
@@ -40,15 +31,9 @@ spring:
           starttls:
             enable: true
 
-server:
-  address: 0.0.0.0
-  port: ${PORT:10000}
-  error:
-    include-message: always
-
 ibfarms:
-  admin-email: musamakhan201@gmail.com
-  base-url: ${IBFARMS_BASE_URL:http://localhost:8080}
+  admin-email: ${IBFARMS_ADMIN_EMAIL:musamakhan201@gmail.com}
+  base-url: ${IBFARMS_BASE_URL:${RENDER_EXTERNAL_URL:http://localhost:10000}}
 
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME:your_cloud_name}

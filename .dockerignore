@@ -1,0 +1,12 @@
+target/
+.git/
+.gitignore
+.idea/
+*.iml
+.env
+application-local.yml
+uploads/
+.DS_Store
+*.log
+README.md
+agent-transcripts/

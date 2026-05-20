@@ -55,7 +55,7 @@ cd ib-farms
 mvn spring-boot:run
 ```
 
-Open [http://localhost:8080](http://localhost:8080) and register a new account.
+Open [http://localhost:10000](http://localhost:10000) and register a new account.
 
 ### Registration approval
 
@@ -77,7 +77,7 @@ spring:
 
 ibfarms:
   admin-email: musamakhan201@gmail.com
-  base-url: http://localhost:8080   # use your public URL in production
+  base-url: http://localhost:10000   # Render sets RENDER_EXTERNAL_URL automatically
 ```
 
 For Gmail, create an [App Password](https://myaccount.google.com/apppasswords) (2-Step Verification required).
@@ -125,6 +125,45 @@ export CLOUDINARY_API_SECRET=your_api_secret
 Optional: change the folder prefix with `cloudinary.folder` (default `ib-farms/animals`).
 
 The database stores each image’s **public ID**; URLs are generated when pages render (with automatic format/quality optimization and thumbnails on the animal list).
+
+## Deploy on Render
+
+This repo includes a [Render Blueprint](https://render.com/docs/blueprint-spec) (`render.yaml`) and a production `Dockerfile`.
+
+### Option A — Blueprint (recommended)
+
+1. Push this repo to GitHub.
+2. In [Render Dashboard](https://dashboard.render.com/) → **New** → **Blueprint**.
+3. Connect the `ib-farms` repository and apply `render.yaml`.
+4. After the first deploy, open the **ib-farms** web service → **Environment** and set:
+
+| Variable | Example |
+|----------|---------|
+| `IBFARMS_BASE_URL` | `https://ib-farms.onrender.com` (your service URL) |
+| `MAIL_HOST` | `smtp.gmail.com` |
+| `MAIL_USERNAME` | your Gmail address |
+| `MAIL_PASSWORD` | Gmail [App Password](https://myaccount.google.com/apppasswords) |
+| `CLOUDINARY_CLOUD_NAME` | from Cloudinary dashboard |
+| `CLOUDINARY_API_KEY` | from Cloudinary dashboard |
+| `CLOUDINARY_API_SECRET` | from Cloudinary dashboard |
+
+PostgreSQL credentials are wired automatically via `DATABASE_URL`. The app converts Render’s `postgres://` URL to JDBC and uses SSL for `*.render.com` hosts.
+
+Health check: `/actuator/health`
+
+### Option B — Manual web service
+
+1. **New** → **Web Service** → connect GitHub repo.
+2. **Runtime:** Docker.
+3. Create a **PostgreSQL** database and link it to the service.
+4. Set the environment variables from the table above.
+5. Render sets `PORT` automatically; the app defaults to `10000` if unset.
+
+### Notes
+
+- Free tier web services spin down after inactivity (cold start ~30s).
+- Free PostgreSQL expires after 90 days on Render; upgrade or export data before then.
+- Never commit secrets; use Render environment variables only.
 
 ## Build JAR
 
