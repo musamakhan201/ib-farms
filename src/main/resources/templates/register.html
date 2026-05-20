@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title/text()}, ~{::#content}, ~{})}">
-<head><title th:fragment="title">Register - IB Farms</title></head>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{})}">
 <body>
-<section id="content" class="row justify-content-center">
+<section id="content" class="row justify-content-center ib-auth-section">
     <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
         <div class="card p-4">
             <th:block th:replace="~{fragments/logo :: auth-header}"/>

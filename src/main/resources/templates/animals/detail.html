@@ -30,7 +30,7 @@
     <div class="row g-4">
         <div class="col-lg-4">
             <div class="card p-3">
-                <img th:if="${animal.pictureFilename}" th:src="${animal.pictureFilename}"
+                <img th:if="${animal.pictureFilename}" th:src="${@imageUrl.url(animal.pictureFilename)}"
                      class="img-fluid animal-detail-img w-100 mb-3" alt=""/>
                 <dl class="row mb-0 small">
                     <dt class="col-5">Breed</dt><dd class="col-7" th:text="${animal.breed ?: '-'}"></dd>
@@ -99,8 +99,8 @@
         </div>
     </div>
 </section>
-<th:block id="scripts" th:fragment="scripts" th:if="${!animal.growthRecords.isEmpty()}">
-    <script th:inline="javascript">
+<th:block id="scripts" th:fragment="scripts">
+    <script th:if="${!animal.growthRecords.isEmpty()}" th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof Chart === 'undefined') {
                 return;

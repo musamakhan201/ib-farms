@@ -79,7 +79,7 @@ public class AnimalService {
                 .tagNumber(animal.getTagNumber())
                 .purchasePrice(animal.getPurchasePrice())
                 .purchaseDate(animal.getPurchaseDate())
-                .pictureFilename(cloudinaryImageService.buildUrl(animal.getPictureFilename()))
+                .pictureFilename(animal.getPictureFilename())
                 .pregnant(animal.isPregnant())
                 .pregnancyDate(animal.getPregnancyDate())
                 .expectedDeliveryDate(animal.getExpectedDeliveryDate())
