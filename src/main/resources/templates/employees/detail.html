@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{})}">
+<body>
+<section id="content">
+    <div class="d-flex flex-wrap justify-content-between align-items-start mb-4 gap-2">
+        <div>
+            <h1 class="h3 mb-1" th:text="${employee.fullName}"></h1>
+            <span class="text-muted" th:text="${employee.role != null ? employee.role : 'No role set'}">No role set</span>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{/employees/{id}/salaries/new(id=${employee.id})}" class="btn btn-primary btn-sm">Record Salary</a>
+            <a th:href="@{/employees/{id}/edit(id=${employee.id})}" class="btn btn-outline-secondary btn-sm">Edit</a>
+            <form th:action="@{/employees/{id}/delete(id=${employee.id})}" method="post" class="d-inline" onsubmit="return confirm('Delete employee and all salary records?');">
+                <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+            </form>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <dl class="row mb-0 small">
+                    <dt class="col-5">Phone</dt><dd class="col-7" th:text="${employee.phone != null ? employee.phone : '—'}"></dd>
+                    <dt class="col-5">Monthly Salary</dt><dd class="col-7" th:text="${employee.monthlySalary != null ? #numbers.formatDecimal(employee.monthlySalary, 1, 2) : '—'}"></dd>
+                    <dt class="col-5">Hire Date</dt><dd class="col-7" th:text="${employee.hireDate != null ? employee.hireDate : '—'}"></dd>
+                    <dt class="col-5">Status</dt><dd class="col-7" th:text="${employee.active} ? 'Active' : 'Inactive'"></dd>
+                </dl>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card p-3">
+                <h5 class="mb-3">Salary Payments</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Month</th><th>Paid Date</th><th>Amount</th><th>Notes</th><th></th></tr></thead>
+                        <tbody>
+                        <tr th:each="p : ${employee.salaryPayments}">
+                            <td th:text="${p.monthLabel}"></td>
+                            <td th:text="${p.paidDate}"></td>
+                            <td th:text="${#numbers.formatDecimal(p.amount, 1, 2)}"></td>
+                            <td th:text="${p.notes != null ? p.notes : '—'}"></td>
+                            <td class="text-end">
+                                <form th:action="@{/employees/{eid}/salaries/{pid}/delete(eid=${employee.id}, pid=${p.id})}" method="post" class="d-inline">
+                                    <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${employee.salaryPayments.isEmpty()}">
+                            <td colspan="5" class="text-muted text-center">No salary payments recorded.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{::#scripts})}">
+<body>
+<section id="content">
+<div class="card p-3 mb-4">
+        <form method="get" th:action="@{/reports}" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Report Type</label>
+                <select name="type" class="form-select">
+                    <option value="expenses" th:selected="${type == 'expenses'}">Expenses</option>
+                    <option value="sales" th:selected="${type == 'sales'}">Sales</option>
+                    <option value="profit" th:selected="${type == 'profit'}">Profit / Loss</option>
+                    <option value="pregnancy" th:selected="${type == 'pregnancy'}">Pregnancy</option>
+                    <option value="growth" th:selected="${type == 'growth'}">Growth</option>
+                </select>
+            </div>
+            <div class="col-md-3" th:unless="${type == 'pregnancy'}">
+                <label class="form-label">From</label>
+                <input type="date" name="from" class="form-control" th:value="${from}"/>
+            </div>
+            <div class="col-md-3" th:unless="${type == 'pregnancy'}">
+                <label class="form-label">To</label>
+                <input type="date" name="to" class="form-control" th:value="${to}"/>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Generate</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Expenses -->
+    <div th:if="${report.reportType == 'expenses'}">
+        <div class="row g-3 mb-3">
+            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Total (All)</div>
+                <div class="h5" th:text="${#numbers.formatDecimal(report.totalExpenses, 1, 2)}"></div></div></div>
+            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Animal Expenses</div>
+                <div class="h5" th:text="${#numbers.formatDecimal(report.totalAnimalExpenses, 1, 2)}"></div></div></div>
+            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Other Expenses</div>
+                <div class="h5" th:text="${#numbers.formatDecimal(report.totalOtherExpenses, 1, 2)}"></div></div></div>
+            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Salaries Paid</div>
+                <div class="h5" th:text="${#numbers.formatDecimal(report.totalSalaryPayments, 1, 2)}"></div></div></div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-5" th:if="${report.chartLabels != null and !report.chartLabels.isEmpty()}">
+                <div class="card p-3"><canvas id="reportChart"></canvas></div>
+            </div>
+            <div class="col-lg-7">
+                <div class="card table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Type</th><th>Date</th><th>Reference</th><th>Category</th><th>Amount</th></tr></thead>
+                        <tbody>
+                        <tr th:each="e : ${report.expenses}">
+                            <td><span class="badge bg-secondary" th:text="${e.expenseType}"></span></td>
+                            <td th:text="${e.date}"></td>
+                            <td>
+                                <span th:if="${e.expenseType == 'Animal'}" th:text="${e.animalName} + ' (' + ${e.tagNumber} + ')'"></span>
+                                <span th:if="${e.expenseType == 'Salary'}" th:text="${e.animalName} + ' — ' + ${e.tagNumber}"></span>
+                                <span th:if="${e.expenseType == 'Other'}">—</span>
+                            </td>
+                            <td th:text="${e.category}"></td>
+                            <td th:text="${#numbers.formatDecimal(e.amount, 1, 2)}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales -->
+    <div th:if="${report.reportType == 'sales'}">
+        <div class="card p-3 mb-3"><div class="text-muted small">Total Sales</div>
+            <div class="h4" th:text="${#numbers.formatDecimal(report.totalSales, 1, 2)}"></div></div>
+        <div class="card table-responsive">
+            <table class="table table-sm mb-0">
+                <thead><tr><th>Date</th><th>Animal</th><th>Sale</th><th>Expenses</th><th>Profit</th><th>Buyer</th></tr></thead>
+                <tbody>
+                <tr th:each="s : ${report.sales}">
+                    <td th:text="${s.saleDate}"></td>
+                    <td th:text="${s.animalName}"></td>
+                    <td th:text="${#numbers.formatDecimal(s.salePrice, 1, 2)}"></td>
+                    <td th:text="${#numbers.formatDecimal(s.expenses, 1, 2)}"></td>
+                    <td th:text="${#numbers.formatDecimal(s.profit, 1, 2)}"></td>
+                    <td th:text="${s.buyerName ?: '-'}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Profit -->
+    <div th:if="${report.reportType == 'profit'}">
+        <div class="row g-3 mb-4">
+            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Animal Sale Profit</div>
+                <div class="h5" th:text="${#numbers.formatDecimal(report.grossAnimalProfit, 1, 2)}"></div></div></div>
+            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Other Expenses</div>
+                <div class="h5 text-danger" th:text="${#numbers.formatDecimal(report.totalOtherExpenses.negate(), 1, 2)}"></div></div></div>
+            <div class="col-md-3"><div class="card p-3"><div class="text-muted small">Salaries Paid</div>
+                <div class="h5 text-danger" th:text="${#numbers.formatDecimal(report.totalSalaryPayments.negate(), 1, 2)}"></div></div></div>
+            <div class="col-md-3"><div class="card p-3 border-primary"><div class="text-muted small">Net Farm Profit / Loss</div>
+                <div class="h4" th:classappend="${report.netFarmProfit.signum() < 0} ? 'text-danger' : 'text-success'"
+                     th:text="${#numbers.formatDecimal(report.netFarmProfit, 1, 2)}"></div></div></div>
+        </div>
+        <p class="small text-muted">Net = Animal sale profits − other expenses − salaries (paid in date range)</p>
+
+        <h5 class="mt-4">Animal Sales Profit</h5>
+        <div class="card table-responsive mb-4">
+            <table class="table table-sm mb-0">
+                <thead><tr><th>Animal</th><th>Sale</th><th>Purchase</th><th>Animal Expenses</th><th>Profit</th></tr></thead>
+                <tbody>
+                <tr th:each="p : ${report.profits}">
+                    <td th:text="${p.animalName} + ' (' + ${p.tagNumber} + ')'"></td>
+                    <td th:text="${#numbers.formatDecimal(p.salePrice, 1, 2)}"></td>
+                    <td th:text="${#numbers.formatDecimal(p.purchasePrice, 1, 2)}"></td>
+                    <td th:text="${#numbers.formatDecimal(p.expenses, 1, 2)}"></td>
+                    <td th:text="${#numbers.formatDecimal(p.profit, 1, 2)}"
+                        th:classappend="${p.profit.signum() < 0} ? 'text-danger' : 'text-success'"></td>
+                </tr>
+                <tr th:if="${report.profits.isEmpty()}"><td colspan="5" class="text-muted text-center">No sales in this period.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h5>Other Expenses</h5>
+        <div class="card table-responsive mb-4">
+            <table class="table table-sm mb-0">
+                <thead><tr><th>Date</th><th>Category</th><th>Amount</th><th>Description</th></tr></thead>
+                <tbody>
+                <tr th:each="o : ${report.otherExpenses}">
+                    <td th:text="${o.date}"></td>
+                    <td th:text="${o.category}"></td>
+                    <td th:text="${#numbers.formatDecimal(o.amount, 1, 2)}"></td>
+                    <td th:text="${o.description != null ? o.description : '—'}"></td>
+                </tr>
+                <tr th:if="${report.otherExpenses.isEmpty()}"><td colspan="4" class="text-muted text-center">None in period.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h5>Salary Payments</h5>
+        <div class="card table-responsive">
+            <table class="table table-sm mb-0">
+                <thead><tr><th>Employee</th><th>Month</th><th>Paid Date</th><th>Amount</th><th>Notes</th></tr></thead>
+                <tbody>
+                <tr th:each="s : ${report.salaryPayments}">
+                    <td th:text="${s.employeeName}"></td>
+                    <td th:text="${s.monthLabel}"></td>
+                    <td th:text="${s.paidDate}"></td>
+                    <td th:text="${#numbers.formatDecimal(s.amount, 1, 2)}"></td>
+                    <td th:text="${s.notes != null ? s.notes : '—'}"></td>
+                </tr>
+                <tr th:if="${report.salaryPayments.isEmpty()}"><td colspan="5" class="text-muted text-center">None in period.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pregnancy -->
+    <div th:if="${report.reportType == 'pregnancy'}">
+        <div class="card table-responsive">
+            <table class="table table-sm mb-0">
+                <thead><tr><th>Name</th><th>Tag</th><th>Species</th><th>Pregnancy Date</th><th>Expected Delivery</th><th>Days Left</th></tr></thead>
+                <tbody>
+                <tr th:each="p : ${report.pregnancies}">
+                    <td th:text="${p.name}"></td>
+                    <td th:text="${p.tagNumber}"></td>
+                    <td th:text="${p.species}"></td>
+                    <td th:text="${p.pregnancyDate}"></td>
+                    <td th:text="${p.expectedDeliveryDate}"></td>
+                    <td th:text="${p.daysRemaining}"></td>
+                </tr>
+                <tr th:if="${report.pregnancies.isEmpty()}"><td colspan="6" class="text-muted text-center">No active pregnancies.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Growth -->
+    <div th:if="${report.reportType == 'growth'}">
+        <div class="card table-responsive">
+            <table class="table table-sm mb-0">
+                <thead><tr><th>Animal</th><th>Date</th><th>Height</th><th>Length</th><th>Weight</th></tr></thead>
+                <tbody>
+                <tr th:each="g : ${report.growth}">
+                    <td th:text="${g.animalName} + ' (' + ${g.tagNumber} + ')'"></td>
+                    <td th:text="${g.recordDate}"></td>
+                    <td th:text="${g.heightCm != null ? g.heightCm + ' cm' : '-'}"></td>
+                    <td th:text="${g.lengthCm != null ? g.lengthCm + ' cm' : '-'}"></td>
+                    <td th:text="${g.weightKg != null ? g.weightKg + ' kg' : '-'}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+<th:block id="scripts" th:fragment="scripts" th:if="${report.reportType == 'expenses' and report.chartLabels != null and !report.chartLabels.isEmpty()}">
+    <script th:inline="javascript">
+        new Chart(document.getElementById('reportChart'), {
+            type: 'doughnut',
+            data: {
+                labels: /*[[${report.chartLabels}]]*/ [],
+                datasets: [{data: /*[[${report.chartData}]]*/ [], backgroundColor: ['#2d6a4f','#40916c','#52b788','#74c69d','#95d5b2']}]
+            },
+            options: {responsive: true}
+        });
+    </script>
+</th:block>
+</body>
+</html>

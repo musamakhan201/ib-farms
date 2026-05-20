@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<a th:fragment="navbar-brand(href)"
+   th:href="${href}"
+   class="navbar-brand d-flex align-items-center gap-2 ib-brand-link">
+    <img th:src="@{/images/ib-farms-logo.png}" alt="IB Farms" class="ib-logo ib-logo-nav"/>
+    <span class="ib-brand-text d-none d-sm-inline">IB Farms</span>
+</a>
+
+<div th:fragment="auth-header" class="text-center mb-4 ib-auth-brand">
+    <img th:src="@{/images/ib-farms-logo.png}" alt="IB Farms" class="ib-logo ib-logo-auth"/>
+    <p class="ib-tagline text-muted small mb-0 mt-2">Healthy Animals · Better Yield · Stronger Future</p>
+</div>
+
+<div th:fragment="page-header" class="mb-3"></div>
+
+<footer th:fragment="footer" class="ib-footer mt-5 pt-4 pb-3 border-top text-center">
+    <img th:src="@{/images/ib-farms-logo.png}" alt="IB Farms" class="ib-logo ib-logo-footer mb-2"/>
+    <p class="ib-tagline text-muted small mb-0">Healthy Animals · Better Yield · Stronger Future</p>
+</footer>
+</body>
+</html>

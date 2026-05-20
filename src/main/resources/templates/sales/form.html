@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{::#scripts})}">
+<body>
+<section id="content">
+    <div class="mb-4"><p class="text-muted mb-0 ms-5 ps-4" th:text="${animal.name} + ' · Purchase: ' + ${#numbers.formatDecimal(animal.purchasePrice, 1, 2)}"></p>
+    </div>
+    <div class="card p-4 col-lg-6">
+        <form th:action="@{/animals/{id}/sell(id=${animal.id})}" th:object="${sale}" method="post" id="saleForm">
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <div class="mb-3">
+                <label class="form-label">Sale Date *</label>
+                <input type="date" th:field="*{saleDate}" class="form-control" required id="saleDate"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Sale Price *</label>
+                <input type="number" step="0.01" th:field="*{salePrice}" class="form-control" required id="salePrice"/>
+                <div class="invalid-feedback d-block" th:errors="*{salePrice}"></div>
+            </div>
+            <div class="alert alert-info" id="profitPreview" style="display:none;">
+                Estimated profit: <strong id="profitValue"></strong>
+                <br/><small>profit = sale price − purchase price − total expenses</small>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Buyer Name</label>
+                <input type="text" th:field="*{buyerName}" class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Notes</label>
+                <textarea th:field="*{notes}" class="form-control" rows="2"></textarea>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+            <button type="submit" class="btn btn-warning">Confirm Sale &amp; View Report</button>
+            <a th:href="@{/animals/{id}(id=${animal.id})}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</section>
+<th:block id="scripts" th:fragment="scripts">
+    <script th:inline="javascript">
+        const animalId = /*[[${animal.id}]]*/ 0;
+        const priceInput = document.getElementById('salePrice');
+        const preview = document.getElementById('profitPreview');
+        const profitValue = document.getElementById('profitValue');
+        let timer;
+        priceInput.addEventListener('input', () => {
+            clearTimeout(timer);
+            timer = setTimeout(async () => {
+                const price = priceInput.value;
+                if (!price) { preview.style.display = 'none'; return; }
+                const res = await fetch(`/animals/${animalId}/sell/preview-profit?salePrice=${price}`);
+                if (res.ok) {
+                    const profit = await res.text();
+                    profitValue.textContent = parseFloat(profit).toFixed(2);
+                    preview.style.display = 'block';
+                }
+            }, 400);
+        });
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{::#scripts})}">
+<body>
+<section id="content">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2 no-print"><div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-primary" onclick="window.print()">Print</button>
+            <a th:href="@{/animals/{id}/sale/report/download(id=${report.animalId})}" class="btn btn-primary">Download PDF</a>
+            <a th:href="@{/animals}" class="btn btn-outline-secondary">Back to Animals</a>
+        </div>
+    </div>
+
+    <div class="card p-4" id="sale-report-print">
+        <div class="text-center mb-4">
+            <img th:src="@{/images/ib-farms-logo.png}" alt="IB Farms" style="max-height:100px"/>
+            <h2 class="h4 mt-2 mb-0">Animal Sale Report</h2>
+            <p class="text-muted small mb-0">Generated <span th:text="${report.generatedAt}"></span></p>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h5 class="text-muted small text-uppercase">Animal</h5>
+                <p class="mb-1"><strong th:text="${report.animalName}"></strong> (<span th:text="${report.tagNumber}"></span>)</p>
+                <p class="mb-0 text-muted"><span th:text="${report.species}"></span><span th:if="${report.breed != null}" th:text="' · ' + ${report.breed}"></span></p>
+            </div>
+            <div class="col-md-6">
+                <h5 class="text-muted small text-uppercase">Sale</h5>
+                <p class="mb-1">Date: <span th:text="${report.saleDate}"></span></p>
+                <p class="mb-1">Buyer: <span th:text="${report.buyerName != null ? report.buyerName : '—'}"></span></p>
+                <p class="mb-0" th:if="${report.saleNotes}">Notes: <span th:text="${report.saleNotes}"></span></p>
+            </div>
+        </div>
+
+        <h5>Expense History</h5>
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered table-sm">
+                <thead class="table-light">
+                <tr><th>Date</th><th>Category</th><th class="text-end">Amount</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="e : ${report.expenses}">
+                    <td th:text="${e.date}"></td>
+                    <td th:text="${e.category}"></td>
+                    <td class="text-end" th:text="${#numbers.formatDecimal(e.amount, 1, 2)}"></td>
+                    <td th:text="${e.description != null ? e.description : '—'}"></td>
+                </tr>
+                <tr th:if="${report.expenses.isEmpty()}">
+                    <td colspan="4" class="text-muted text-center">No expenses recorded.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row justify-content-end">
+            <div class="col-md-5">
+                <table class="table table-sm mb-0">
+                    <tr><td>Purchase Price</td><td class="text-end" th:text="${#numbers.formatDecimal(report.purchasePrice, 1, 2)}"></td></tr>
+                    <tr><td>Total Expenses</td><td class="text-end" th:text="${#numbers.formatDecimal(report.totalExpenses, 1, 2)}"></td></tr>
+                    <tr><td>Sale Price</td><td class="text-end" th:text="${#numbers.formatDecimal(report.salePrice, 1, 2)}"></td></tr>
+                    <tr class="table-success" th:unless="${report.profitLoss}">
+                        <td><strong>Net Profit</strong></td>
+                        <td class="text-end"><strong th:text="${#numbers.formatDecimal(report.profit, 1, 2)}"></strong></td>
+                    </tr>
+                    <tr class="table-danger" th:if="${report.profitLoss}">
+                        <td><strong>Net Loss</strong></td>
+                        <td class="text-end"><strong th:text="${#numbers.formatDecimal(report.profit, 1, 2)}"></strong></td>
+                    </tr>
+                </table>
+                <p class="small text-muted mt-2 mb-0">Formula: Sale Price − Purchase Price − Total Expenses</p>
+            </div>
+        </div>
+    </div>
+</section>
+<th:block id="scripts" th:fragment="scripts">
+    <style>
+        @media print {
+            .navbar, .no-print, footer, .alert { display: none !important; }
+            .card { border: none !important; box-shadow: none !important; }
+            body { background: white; }
+        }
+    </style>
+</th:block>
+</body>
+</html>

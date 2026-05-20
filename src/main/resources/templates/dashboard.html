@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{::#scripts})}">
+<body>
+<section id="content">
+    <div class="d-flex flex-wrap justify-content-end align-items-center mb-4 gap-2">
+        <a th:href="@{/animals/new}" class="btn btn-primary">Add Animal</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card stat-card p-3">
+                <div class="text-muted small">Total Animals</div>
+                <div class="display-6" th:text="${dashboard.totalAnimals}">0</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card p-3">
+                <div class="text-muted small">Active</div>
+                <div class="display-6" th:text="${dashboard.activeAnimals}">0</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card p-3">
+                <div class="text-muted small">Pregnant</div>
+                <div class="display-6" th:text="${dashboard.pregnantAnimals}">0</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card p-3">
+                <div class="text-muted small">Sold</div>
+                <div class="display-6" th:text="${dashboard.soldAnimals}">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <div class="text-muted small">Monthly Expenses</div>
+                <div class="h4" th:text="${#numbers.formatDecimal(dashboard.monthlyExpenses, 1, 2)}">0</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <div class="text-muted small">Monthly Sales</div>
+                <div class="h4" th:text="${#numbers.formatDecimal(dashboard.monthlySales, 1, 2)}">0</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <div class="text-muted small">Monthly Profit</div>
+                <div class="h4" th:text="${#numbers.formatDecimal(dashboard.monthlyProfit, 1, 2)}">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card p-3">
+                <h5 class="card-title">Daily Expenses (This Month)</h5>
+                <canvas id="expenseChart" height="200"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card p-3">
+                <h5 class="card-title">Daily Sales (This Month)</h5>
+                <canvas id="salesChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-3" th:if="${!dashboard.upcomingDeliveries.isEmpty()}">
+        <h5 class="card-title">Upcoming Deliveries</h5>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead>
+                <tr><th>Animal</th><th>Tag</th><th>Expected Date</th><th>Days Left</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="d : ${dashboard.upcomingDeliveries}">
+                    <td><a th:href="@{/animals/{id}(id=${d.animalId})}" th:text="${d.name}"></a></td>
+                    <td th:text="${d.tagNumber}"></td>
+                    <td th:text="${d.expectedDeliveryDate}"></td>
+                    <td th:text="${d.daysRemaining}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<th:block id="scripts" th:fragment="scripts">
+    <script th:inline="javascript">
+        const expenseLabels = /*[[${dashboard.expenseChartLabels}]]*/ [];
+        const expenseData = /*[[${dashboard.expenseChartData}]]*/ [];
+        const salesLabels = /*[[${dashboard.salesChartLabels}]]*/ [];
+        const salesData = /*[[${dashboard.salesChartData}]]*/ [];
+
+        if (expenseLabels.length) {
+            new Chart(document.getElementById('expenseChart'), {
+                type: 'line',
+                data: {
+                    labels: expenseLabels,
+                    datasets: [{label: 'Expenses', data: expenseData, borderColor: '#2d6a4f', tension: 0.3}]
+                },
+                options: {responsive: true, plugins: {legend: {display: false}}}
+            });
+        }
+        if (salesLabels.length) {
+            new Chart(document.getElementById('salesChart'), {
+                type: 'bar',
+                data: {
+                    labels: salesLabels,
+                    datasets: [{label: 'Sales', data: salesData, backgroundColor: '#40916c'}]
+                },
+                options: {responsive: true, plugins: {legend: {display: false}}}
+            });
+        }
+    </script>
+</th:block>
+</body>
+</html>

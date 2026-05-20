@@ -1,0 +1,12 @@
+application-local.yml
+.env
+
+target/
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+uploads/
+.DS_Store
+*.log

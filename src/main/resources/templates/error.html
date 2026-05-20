@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{})}">
+<body>
+<section id="content" class="text-center py-5">
+    <th:block th:replace="~{fragments/logo :: auth-header}"/>
+    <h1 class="display-6">Something went wrong</h1>
+    <p class="text-muted" th:text="${errorMessage}">An unexpected error occurred.</p>
+    <a th:href="@{/dashboard}" class="btn btn-primary mt-3">Back to Dashboard</a>
+</section>
+</body>
+</html>

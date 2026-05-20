@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{})}">
+<body>
+<section id="content">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <a th:href="@{/other-expenses/new}" class="btn btn-primary">Add Expense</a>
+    </div>
+    <p class="text-muted">Farm-wide costs (utilities, equipment, rent, etc.) — included in profit/loss reports.</p>
+    <div class="card table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+            <tr><th>Date</th><th>Category</th><th>Amount</th><th>Description</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="e : ${expenses}">
+                <td th:text="${e.expenseDate}"></td>
+                <td th:text="${e.category}"></td>
+                <td th:text="${#numbers.formatDecimal(e.amount, 1, 2)}"></td>
+                <td th:text="${e.description != null ? e.description : '—'}"></td>
+                <td class="text-end">
+                    <form th:action="@{/other-expenses/{id}/delete(id=${e.id})}" method="post" class="d-inline">
+                        <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${expenses.isEmpty()}"><td colspan="5" class="text-center text-muted py-4">No other expenses yet.</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

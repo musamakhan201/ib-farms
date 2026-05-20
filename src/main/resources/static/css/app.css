@@ -1,0 +1,119 @@
+:root {
+    --ib-primary: #2d6a4f;
+    --ib-primary-dark: #1b4332;
+    --ib-accent: #95d5b2;
+    --ib-bg: #f8faf9;
+}
+
+body {
+    background-color: var(--ib-bg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.ib-brand-link {
+    text-decoration: none;
+}
+
+.ib-brand-link:hover {
+    opacity: 0.92;
+}
+
+.ib-brand-text {
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.ib-logo {
+    display: block;
+    object-fit: contain;
+}
+
+.ib-logo-nav {
+    height: 40px;
+    width: auto;
+    background: #fff;
+    border-radius: 50%;
+    padding: 2px;
+}
+
+.ib-logo-auth {
+    max-width: 220px;
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+
+.ib-logo-page {
+    height: 48px;
+    width: auto;
+    flex-shrink: 0;
+}
+
+.ib-logo-footer {
+    max-width: 120px;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0.9;
+}
+
+.ib-tagline {
+    letter-spacing: 0.04em;
+}
+
+.ib-auth-brand {
+    padding-top: 0.25rem;
+}
+
+.ib-page-header h1 {
+    color: var(--ib-primary-dark);
+}
+
+.ib-footer {
+    background: linear-gradient(to bottom, transparent, rgba(27, 67, 50, 0.04));
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.06);
+}
+
+.stat-card .display-6 {
+    font-weight: 700;
+    color: var(--ib-primary-dark);
+}
+
+.btn-primary {
+    background-color: var(--ib-primary);
+    border-color: var(--ib-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--ib-primary-dark);
+    border-color: var(--ib-primary-dark);
+}
+
+.table-responsive {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.animal-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 0.375rem;
+}
+
+.animal-detail-img {
+    max-height: 280px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+}
+
+@media (max-width: 576px) {
+    .stat-card h2 {
+        font-size: 1.5rem;
+    }
+}

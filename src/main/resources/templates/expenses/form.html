@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{})}">
+<body>
+<section id="content">
+    <div class="mb-4"><p class="text-muted mb-0 ms-5 ps-4" th:text="${animal.name} + ' (' + ${animal.tagNumber} + ')'"></p>
+    </div>
+    <div class="card p-4 col-lg-6">
+        <form th:action="@{/animals/{id}/expenses(id=${animal.id})}" th:object="${expense}" method="post">
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <div class="mb-3">
+                <label class="form-label">Date *</label>
+                <input type="date" th:field="*{expenseDate}" class="form-control" required/>
+                <div class="invalid-feedback d-block" th:errors="*{expenseDate}"></div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Category *</label>
+                <input type="text" th:field="*{category}" class="form-control" list="categories" required/>
+                <datalist id="categories">
+                    <option value="Feed"></option>
+                    <option value="Veterinary"></option>
+                    <option value="Medicine"></option>
+                    <option value="Shelter"></option>
+                    <option value="Labor"></option>
+                    <option value="Transport"></option>
+                </datalist>
+                <div class="invalid-feedback d-block" th:errors="*{category}"></div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Amount *</label>
+                <input type="number" step="0.01" th:field="*{amount}" class="form-control" required/>
+                <div class="invalid-feedback d-block" th:errors="*{amount}"></div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea th:field="*{description}" class="form-control" rows="2"></textarea>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a th:href="@{/animals/{id}(id=${animal.id})}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</section>
+</body>
+</html>

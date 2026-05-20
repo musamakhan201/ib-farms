@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::#content}, ~{})}">
+<body>
+<section id="content">
+    <div class="d-flex flex-wrap justify-content-end align-items-center mb-4 gap-2">
+        <a th:href="@{/animals/new}" class="btn btn-primary">Add Animal</a>
+    </div>
+    <div class="card p-3 mb-4">
+        <form method="get" th:action="@{/animals}" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" th:value="${search}" placeholder="Name, tag, breed"/>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Species</label>
+                <select name="species" class="form-select">
+                    <option value="">All</option>
+                    <option th:each="s : ${speciesOptions}" th:value="${s}" th:text="${s}" th:selected="${s == species}"></option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All</option>
+                    <option th:each="st : ${statuses}" th:value="${st}" th:text="${st}" th:selected="${st == status}"></option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Pregnant</label>
+                <select name="pregnant" class="form-select">
+                    <option value="">All</option>
+                    <option value="true" th:selected="${pregnant == true}">Yes</option>
+                    <option value="false" th:selected="${pregnant == false}">No</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Tag</th>
+                    <th>Species</th>
+                    <th>Status</th>
+                    <th>Pregnant</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="a : ${animals.content}">
+                    <td>
+                        <img th:if="${a.pictureFilename}" th:src="${@imageUrl.thumb(a.pictureFilename)}" class="animal-thumb" alt=""/>
+                        <span th:unless="${a.pictureFilename}" class="badge bg-secondary">N/A</span>
+                    </td>
+                    <td th:text="${a.name}"></td>
+                    <td th:text="${a.tagNumber}"></td>
+                    <td th:text="${a.species}"></td>
+                    <td><span class="badge" th:classappend="${a.status.name() == 'ACTIVE'} ? 'bg-success' : 'bg-dark'" th:text="${a.status}"></span></td>
+                    <td>
+                        <span th:if="${a.pregnant}" class="badge bg-warning text-dark">Yes</span>
+                        <span th:unless="${a.pregnant}" class="text-muted">No</span>
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a th:href="@{/animals/{id}(id=${a.id})}" class="btn btn-sm btn-outline-primary">View</a>
+                        <a th:if="${a.status.name() == 'ACTIVE'}" th:href="@{/animals/{id}/edit(id=${a.id})}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        <a th:if="${a.status.name() == 'ACTIVE'}" th:href="@{/animals/{id}/sell(id=${a.id})}" class="btn btn-sm btn-warning">Sell</a>
+                        <a th:if="${a.status.name() == 'SOLD'}" th:href="@{/animals/{id}/sale/report(id=${a.id})}" class="btn btn-sm btn-success">Report</a>
+                    </td>
+                </tr>
+                <tr th:if="${animals.content.isEmpty()}">
+                    <td colspan="7" class="text-center text-muted py-4">No animals found.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center" th:if="${animals.totalPages > 1}">
+            <span class="small text-muted" th:text="'Page ' + (${animals.number + 1}) + ' of ' + ${animals.totalPages}"></span>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item" th:classappend="${animals.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{/animals(page=${animals.number - 1}, search=${search}, species=${species}, status=${status}, pregnant=${pregnant})}">Prev</a>
+                    </li>
+                    <li class="page-item" th:classappend="${animals.last} ? 'disabled'">
+                        <a class="page-link" th:href="@{/animals(page=${animals.number + 1}, search=${search}, species=${species}, status=${status}, pregnant=${pregnant})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+</body>
+</html>
